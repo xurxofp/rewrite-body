@@ -116,10 +116,16 @@ func (bodyRewrite *rewriteBody) ServeHTTP(response http.ResponseWriter, req *htt
 		bodyBytes = rwt.regex.ReplaceAll(bodyBytes, rwt.replacement)
 	}
 
+	bodyBytes = normalizeBytes(bodyBytes)
+
 	bodyRewrite.logger.LogDebugf("Transformed body: %s", bodyBytes)
 
 	encoding := wrappedWriter.Header().Get("Content-Encoding")
 	wrappedWriter.SetContent(bodyBytes, encoding)
+}
+
+func normalizeBytes(in []byte) []byte {
+    return norm.NFC.Bytes(in)
 }
 
 func (bodyRewrite *rewriteBody) handlePanic() {
